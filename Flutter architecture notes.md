@@ -1,5 +1,5 @@
 ---
-banner: https://thoughtfocus.com/wp-content/uploads/2025/03/flutter_banner-scaled-1.jpg
+banner: "https://thoughtfocus.com/wp-content/uploads/2025/03/flutter_banner-scaled-1.jpg"
 tags:
   - flutter
 banner_y: 0.5
@@ -47,7 +47,8 @@ there are 3 purposes of the ViewModel:
 2. Make all business logic fully testable
 3. Making the state uni-directional (flowing from a 'higher' class down to the view)
 
-# Service
+# App State
+## Service
 Similar to a ViewModel, but is used for multiple views/ app-wide. Not exclusive for a single view/page.
 
 But it eventually needs to be passed to the app so it has to pass through a viewmodel anyways. This is done by injecting it into the viewmodel's constructor.
@@ -56,9 +57,9 @@ So anytime we have multiple views dependent on a single state, all the viewmodel
 
 All properties should be ValueNotifiers and ViewModel will expose getters on them for the View to react.
 
-***Before:***
+###### ***ViewModel before implementing service logic:***
 
-```
+```dart
 class TodoPageViewModel {
   TodoPageViewModel()
 
@@ -70,9 +71,9 @@ class TodoPageViewModel {
 }
 ```
 
-***After:***
+###### ***ViewModel after implementing service logic:***
 
-```
+```dart
 class TodoService {
   final ValueNotifier<List<Todo>> todosNotifier = ValueNotifier([]);
 
@@ -101,4 +102,87 @@ This is useful for a couple of reasons:
 2. You can encapsulate a shared state, and the ViewModels can focus on the view.
 3. You avoid circular dependencies, which could lead to unexpected issues.
 
+## Dependency Injection
+
+***Dependencies should always be injected through the constructor***
+
+Eg:
+```dart
+class MyService {}
+
+class MyViewModel {
+  MyViewModel({required MyService myService}) : _myService = myService;
+
+  final MyService _myService
+}
+
+final myViewModel = MyViewModel(myService: WeNeedTheServiceInstanceHere);
+```
+
+### Pass  dependencies
+Multiple ways to instantiate a new instance and use it throughout the app
+
+Example: **Inherited Widget** 
+Create an instance, insert in the Inherited Widget. Any widget below the Inherited Widget in the widget tree can access the instance.
+
+other approach: **Service Locator**
+
+#### Service Locator
+- Just another fancy way of using a `Map` data structure.
+- Used to create and reference instance of classes.
+- To make custom service Locator, gotta use `GetIt` package.
+
+
+# Model: The Data Layer
+**Part of the architecture that handles the data that is to be stored in the app**
+
+Part of the data layer that interacts with our application are called Repositories.
+- Theyre the abstraction layer between the app and external resources (like databases, HTTP requests, file systems, caches, packages etc)
+- Provide a consistent interface for the app to interact with various data sources, regardless of their nature. 
+- This is useful as it allows the app to:
+	- fetch data from multiple sources and use the best.
+	- switch between diff sources without changing app logic.
+	- combine data from various sources into single interface.
+		`For example, a repository might fetch user data from a local database, retrieve their recent activity from a REST API, and check their subscription status from a third-party service - all while presenting a unified interface to the rest of the application.`
+
+## The Abstraction Layer
+### Just a fancy class that is used for wrapping external packages/dependencies
+
+`For example, suppose you use a package to check your phone's battery. In that case, this allows you to control that dependency's interface more easily and allows for easier testing.`
+
+```dart
+class BatteryAbstraction {
+  /// wrap the interface of the native battery package or native calls
+}
+```
+
+```dart
+class HomeViewModel {
+  HomeViewModel({required BatteryAbstraction batteryAbstraction}) : _batteryAbstraction = batteryAbstraction;
+
+  final BatteryAbstraction _batteryAbstraction;
+
+  // now you can use the abstraction as you wish are during tests it's very straightforward to fake or mock out the abstraction class.
+}
+```
+
+### Important closing points:
+- you don't have to use all of this for a simple todo app.
+- The level of abstraction that we covered here is similar to what big companies use
+	- Coz they **need** things abstracted this way for teams to work efficiently together. And testing.
+	
+- If you use a camera package and only need to take a picture, with a 'CameraAbstraction', can only expose the picture-taking feature. 
+	- Then, during testing, you only need to mock this one feature instead of the entire camera package functionality.
+
+- In the future, if you need more functionality, add it to the abstraction, update your tests, and your code is simple and easy to review for the team.
+
+### How to handle Remote Data
+
+***Always make sure to have some form of local database in-device.***
+
+`For example:`
+- Video call application can get away without loading in case of no-connection.
+- but a todo list or notes app or a game or fitness tracker cannot get away coz they should work despite no-connection.
+
+We tackle this by having two data sources, one local and one remote. Then use the Repository to choose which data source to call.
 
