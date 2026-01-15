@@ -2,6 +2,7 @@
 banner: "https://thoughtfocus.com/wp-content/uploads/2025/03/flutter_banner-scaled-1.jpg"
 tags:
   - flutter
+  - notes
 banner_y: 0.5
 ---
 ## MVVM - Model View View-Model architecture
@@ -29,8 +30,8 @@ banner_y: 0.5
 ###### ***View:*** Basically the UI of the page or UI of a custom widget of the page.
 ###### ***Pages:*** The UI of an entire single screen. Should only use one viewmodel to handle all if not most of the logic of the page. 
 
-### Widgets
-While the rule of keeping all the in the viewmodel is valid for most situations, it isnt when it comes to some widgets. For example: a button with a loading state. If it is used 10 times in the application theres no point in maintaining 10 separate states according to the rules. 
+###### Widgets
+While the rule of keeping all the logic in the viewmodel is valid for most situations, it isnt when it comes to some widgets. For example: a button with a loading state. If it is used 10 times in the application theres no point in maintaining 10 separate states according to the rules. 
 
 So we follow a simple rule:
 **If the state is fully contained, keep it within the widget.**
@@ -119,7 +120,7 @@ class MyViewModel {
 final myViewModel = MyViewModel(myService: WeNeedTheServiceInstanceHere);
 ```
 
-### Pass  dependencies
+### Pass dependencies
 Multiple ways to instantiate a new instance and use it throughout the app
 
 Example: **Inherited Widget** 
@@ -136,7 +137,7 @@ other approach: **Service Locator**
 # Model: The Data Layer
 **Part of the architecture that handles the data that is to be stored in the app**
 
-Part of the data layer that interacts with our application are called Repositories.
+Part of the data layer that interacts with our application are called ***Repositories***.
 - Theyre the abstraction layer between the app and external resources (like databases, HTTP requests, file systems, caches, packages etc)
 - Provide a consistent interface for the app to interact with various data sources, regardless of their nature. 
 - This is useful as it allows the app to:
